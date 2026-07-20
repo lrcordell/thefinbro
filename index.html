@@ -271,18 +271,23 @@ let activeFilter = 'all';
 function renderFeed(){
   const list = document.getElementById('feedList');
   const items = newsData.filter(n => activeFilter==='all' || n.tag===activeFilter);
-  list.innerHTML = items.map(n => `
+  list.innerHTML = items.map(n => {
+    const titleHtml = (!n.locked && n.sourceUrl)
+      ? `<h3><a href="${n.sourceUrl}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">${n.title} <span style="color:var(--text-dim);font-size:13px;">↗</span></a></h3>`
+      : `<h3>${n.title}</h3>`;
+    return `
     <div class="card ${n.locked?'locked':''}">
       <div class="hype-badge ${n.tag}">${n.badge}</div>
       <div class="${n.locked?'lockblur':''}">
         <div class="card-meta"><span class="tkr">${n.tkr}</span><span>·</span><span>${n.time}</span></div>
-        <h3>${n.title}</h3>
+        ${titleHtml}
         <p>${n.body}</p>
       </div>
       <div class="card-source ${n.locked?'lockblur':''}">${n.source}</div>
       ${n.locked ? `<div class="lock-overlay" style="grid-column:1/-1;"><span class="tag">🔒 Pro members only</span></div>` : ''}
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 renderFeed(); // show demo content immediately, no blank/loading flash
 
@@ -313,6 +318,10 @@ document.getElementById('filters').addEventListener('click', (e)=>{
   renderFeed();
 });
 
+// Replace YOUR_FORM_ID below with the ID Formspree gives you after you
+// create a free account at formspree.io and set up a new form.
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
+
 async function signup(){
   const input = document.getElementById('signupEmail');
   const status = document.getElementById('signupStatus');
@@ -323,8 +332,12 @@ async function signup(){
     return;
   }
   try{
-    const key = 'subscriber:' + email.toLowerCase();
-    await window.storage.set(key, JSON.stringify({email, joinedAt: new Date().toISOString()}), true);
+    const res = await fetch(FORMSPREE_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    if(!res.ok) throw new Error('Formspree returned ' + res.status);
     status.textContent = "You're in. Check your inbox tomorrow at open.";
     status.className = 'status-msg ok';
     input.value = '';
