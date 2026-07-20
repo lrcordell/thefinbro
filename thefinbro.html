@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Fin Bro — No-BS market news for the rest of us</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0C0F12;
+    --panel:#151A1F;
+    --panel-2:#1C232A;
+    --line:#262E36;
+    --text:#ECEFF2;
+    --text-dim:#8B96A3;
+    --orange:#FF5A1F;
+    --orange-dim:#7a2c0e;
+    --blue:#3D7CFF;
+    --up:#29D398;
+    --down:#FF4D5E;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+  .display{font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:0.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;text-decoration:none;}
+
+  /* ---------- Ticker tape ---------- */
+  .ticker-wrap{background:#000;border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap;padding:9px 0;}
+  .ticker-track{display:inline-block;animation:scroll 38s linear infinite;}
+  .ticker-wrap:hover .ticker-track{animation-play-state:paused;}
+  @keyframes scroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+  .tick{display:inline-flex;align-items:center;gap:8px;padding:0 22px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;}
+  .tick .sym{color:var(--text-dim);}
+  .tick .up{color:var(--up);}
+  .tick .down{color:var(--down);}
+
+  /* ---------- Nav ---------- */
+  nav{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(12,15,18,0.94);backdrop-filter:blur(8px);z-index:50;}
+  .logo{display:flex;align-items:center;gap:10px;}
+  .logo .display{font-size:22px;letter-spacing:0.02em;}
+  .logo .display span{color:var(--orange);}
+  .navlinks{display:flex;gap:32px;font-size:14px;color:var(--text-dim);font-weight:500;}
+  .navlinks a:hover{color:var(--orange);}
+  .nav-cta{background:var(--orange);color:#0C0F12;font-weight:700;font-size:13.5px;padding:10px 20px;border-radius:3px;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:0.03em;}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:90px 40px 70px;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.1fr 0.9fr;gap:60px;align-items:center;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--orange);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+  .eyebrow::before{content:'';width:16px;height:2px;background:var(--orange);}
+  .hero h1{font-size:60px;line-height:0.98;margin-bottom:22px;}
+  .hero h1 .accent{color:var(--orange);}
+  .hero p{color:var(--text-dim);font-size:16.5px;line-height:1.6;max-width:480px;margin-bottom:30px;}
+  .hero-actions{display:flex;gap:14px;}
+  .btn-primary{background:var(--orange);color:#0C0F12;font-weight:700;font-size:14.5px;padding:14px 26px;border-radius:3px;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:0.02em;}
+  .btn-ghost{background:transparent;color:var(--text);font-weight:600;font-size:14.5px;padding:14px 26px;border-radius:3px;border:1px solid var(--line);cursor:pointer;}
+  .btn-ghost:hover{border-color:var(--orange);color:var(--orange);}
+
+  /* ---------- Hype Meter (signature element) ---------- */
+  .hype-card{background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+  .hype-head{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--panel-2);}
+  .hype-head .dot{width:8px;height:8px;border-radius:50%;background:var(--orange);}
+  .hype-head span.mono{font-size:11.5px;color:var(--text-dim);letter-spacing:0.05em;}
+  .hype-body{padding:28px 24px 22px;text-align:center;}
+  .gauge-wrap{position:relative;width:220px;height:120px;margin:0 auto 14px;}
+  .gauge-label{position:absolute;bottom:0;width:100%;text-align:center;}
+  .gauge-label .num{font-family:'Anton',sans-serif;font-size:38px;color:var(--up);line-height:1;}
+  .gauge-label .txt{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:0.08em;margin-top:2px;}
+  .hype-foot{padding:16px 24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);}
+  .hype-foot b{color:var(--text);}
+
+  /* ---------- Feed section ---------- */
+  .section{max-width:1200px;margin:0 auto;padding:0 40px;}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;margin:74px 0 26px;border-bottom:1px solid var(--line);padding-bottom:18px;}
+  .section-head h2.display{font-size:26px;}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;}
+  .chip{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);border:1px solid var(--line);padding:6px 12px;border-radius:20px;cursor:pointer;transition:all .15s;background:transparent;}
+  .chip.active,.chip:hover{border-color:var(--orange);color:var(--orange);}
+
+  .feed-layout{display:grid;grid-template-columns:1fr 320px;gap:36px;align-items:start;}
+  .feed{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+  .card{background:var(--panel);padding:20px 22px;display:grid;grid-template-columns:44px 1fr auto;gap:16px;}
+  .hype-badge{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:15px;align-self:start;}
+  .hype-badge.bullish{background:rgba(41,211,152,0.12);color:var(--up);border:1.5px solid var(--up);}
+  .hype-badge.bearish{background:rgba(255,77,94,0.12);color:var(--down);border:1.5px solid var(--down);}
+  .hype-badge.neutral{background:rgba(139,150,163,0.12);color:var(--text-dim);border:1.5px solid var(--text-dim);}
+  .card-meta{display:flex;gap:10px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--text-dim);margin-bottom:8px;}
+  .card-meta .tkr{color:var(--orange);font-weight:700;}
+  .card h3{font-size:16.5px;font-weight:700;margin-bottom:6px;line-height:1.35;}
+  .card p{font-size:14px;color:var(--text-dim);line-height:1.55;}
+  .card-source{align-self:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);text-align:right;white-space:nowrap;}
+
+  .locked{position:relative;}
+  .locked .lockblur{filter:blur(4px);user-select:none;pointer-events:none;}
+  .lock-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(21,26,31,0.6);}
+  .lock-overlay .tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--orange);border:1px solid var(--orange-dim);padding:5px 12px;border-radius:20px;background:rgba(255,90,31,0.08);}
+
+  /* sidebar */
+  .sidebar{display:flex;flex-direction:column;gap:20px;position:sticky;top:96px;}
+  .panel-box{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:24px;}
+  .panel-box h4.display{font-size:18px;margin-bottom:8px;}
+  .panel-box p{font-size:13.5px;color:var(--text-dim);line-height:1.55;margin-bottom:16px;}
+  .signup-row{display:flex;gap:8px;}
+  .signup-row input{flex:1;background:var(--bg);border:1px solid var(--line);color:var(--text);padding:11px 12px;border-radius:3px;font-size:13.5px;font-family:'Inter',sans-serif;}
+  .signup-row input:focus{outline:none;border-color:var(--orange);}
+  .signup-row button{background:var(--orange);color:#0C0F12;border:none;font-weight:700;font-size:13px;padding:0 16px;border-radius:3px;cursor:pointer;white-space:nowrap;text-transform:uppercase;}
+  .fine{font-size:11.5px;color:var(--text-dim);margin-top:10px;}
+  .status-msg{font-size:12.5px;margin-top:10px;font-family:'IBM Plex Mono',monospace;}
+  .status-msg.ok{color:var(--up);}
+
+  .premium-box{border-color:var(--orange-dim);background:linear-gradient(180deg,rgba(255,90,31,0.07),transparent);}
+  .price-line{display:flex;align-items:baseline;gap:6px;margin-bottom:16px;}
+  .price-line .num{font-family:'Anton',sans-serif;font-size:34px;color:var(--orange);}
+  .price-line .per{color:var(--text-dim);font-size:13px;}
+  .plist{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:18px;}
+  .plist li{font-size:13px;color:var(--text-dim);display:flex;gap:8px;}
+  .plist li::before{content:'→';color:var(--orange);}
+  .btn-block{width:100%;background:var(--orange);color:#0C0F12;border:none;font-weight:700;font-size:14px;padding:13px;border-radius:3px;cursor:pointer;text-transform:uppercase;letter-spacing:0.02em;}
+
+  footer{border-top:1px solid var(--line);margin-top:90px;padding:36px 40px;max-width:1200px;margin-left:auto;margin-right:auto;}
+  footer .disclaimer{font-size:12px;color:var(--text-dim);line-height:1.6;max-width:760px;}
+
+  @media(max-width:880px){
+    .hero{grid-template-columns:1fr;padding:60px 22px;}
+    .feed-layout{grid-template-columns:1fr;}
+    .sidebar{position:static;}
+    nav{padding:16px 20px;}
+    .navlinks{display:none;}
+    .section{padding:0 20px;}
+    .hero h1{font-size:42px;}
+  }
+  @media(prefers-reduced-motion:reduce){.ticker-track{animation:none;}}
+</style>
+</head>
+<body>
+
+<div class="ticker-wrap"><div class="ticker-track mono" id="tickerTrack"></div></div>
+
+<nav>
+  <div class="logo"><div class="display">THE FIN<span>BRO</span></div></div>
+  <div class="navlinks">
+    <a href="#feed">Feed</a>
+    <a href="#premium">Pro</a>
+    <a href="#about">About</a>
+  </div>
+  <button class="nav-cta" onclick="document.getElementById('signupEmail').focus()">Join Free</button>
+</nav>
+
+<section class="hero">
+  <div>
+    <div class="eyebrow">Daily · Free · Zero jargon</div>
+    <h1 class="display">Market news<br>for the guys<br>who <span class="accent">actually work.</span></h1>
+    <p>We scan the filings, the Fed, the earnings calls, and everywhere else the market moves — then tell you what it means in plain English before your shift starts.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="document.getElementById('signupEmail').focus()">Join Free</button>
+      <button class="btn-ghost" onclick="document.getElementById('premium').scrollIntoView()">See Pro</button>
+    </div>
+  </div>
+
+  <div class="hype-card">
+    <div class="hype-head"><span class="dot"></span><span class="mono">MARKET HYPE METER</span></div>
+    <div class="hype-body">
+      <div class="gauge-wrap">
+        <svg viewBox="0 0 220 120" width="220" height="120">
+          <path d="M 15 110 A 95 95 0 0 1 205 110" fill="none" stroke="#262E36" stroke-width="14" stroke-linecap="round"/>
+          <path id="gaugeArc" d="M 15 110 A 95 95 0 0 1 205 110" fill="none" stroke="url(#g)" stroke-width="14" stroke-linecap="round" stroke-dasharray="298" stroke-dashoffset="80"/>
+          <defs>
+            <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#FF4D5E"/>
+              <stop offset="50%" stop-color="#FF5A1F"/>
+              <stop offset="100%" stop-color="#29D398"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="gauge-label">
+          <div class="num">73</div>
+          <div class="txt">RISK-ON</div>
+        </div>
+      </div>
+    </div>
+    <div class="hype-foot">
+      <span>Yesterday: <b>68</b></span>
+      <span>7-day avg: <b>64</b></span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="feed">
+  <div class="section-head">
+    <h2 class="display">Today's Feed</h2>
+    <div class="filters" id="filters">
+      <button class="chip active" data-f="all">All</button>
+      <button class="chip" data-f="bullish">Hype 🔥</button>
+      <button class="chip" data-f="bearish">Fade 📉</button>
+      <button class="chip" data-f="neutral">Neutral</button>
+    </div>
+  </div>
+
+  <div class="feed-layout">
+    <div class="feed" id="feedList"></div>
+
+    <div class="sidebar">
+      <div class="panel-box">
+        <h4 class="display">Get the brief</h4>
+        <p>One email, every morning before the open. Free, always. No spam, ever.</p>
+        <div class="signup-row">
+          <input type="email" id="signupEmail" placeholder="you@email.com">
+          <button onclick="signup()">Join</button>
+        </div>
+        <div class="status-msg" id="signupStatus"></div>
+        <div class="fine">Unsubscribe in one click.</div>
+      </div>
+
+      <div class="panel-box premium-box" id="premium">
+        <h4 class="display">Fin Bro Pro</h4>
+        <div class="price-line"><span class="num">$19</span><span class="per">/ mo</span></div>
+        <ul class="plist">
+          <li>Full breakdown on every locked story</li>
+          <li>Ticker-level hype alerts</li>
+          <li>Weekly options flow rundown</li>
+          <li>Full brief archive</li>
+        </ul>
+        <button class="btn-block" onclick="unlockDemo()">Start Free Trial</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="about">
+  <p class="disclaimer">The Fin Bro aggregates publicly available market news and adds editorial commentary for informational and entertainment purposes only. Nothing here is financial, investment, or trading advice, and no content should be relied on to make investment decisions. Some links on this site are affiliate links; we may earn a commission at no extra cost to you. Markets involve risk, including loss of principal.</p>
+</footer>
+
+<script>
+const symbols = [
+  {s:'SPY',p:'552.14',c:'+0.42%',up:true},
+  {s:'NVDA',p:'118.66',c:'+2.11%',up:true},
+  {s:'AAPL',p:'201.33',c:'-0.18%',up:false},
+  {s:'TSLA',p:'244.90',c:'-1.62%',up:false},
+  {s:'BTC',p:'71,240',c:'+3.04%',up:true},
+  {s:'DXY',p:'103.4',c:'+0.09%',up:true},
+  {s:'10Y',p:'4.28%',c:'-0.03',up:false},
+  {s:'AMD',p:'149.02',c:'+1.75%',up:true},
+  {s:'GOLD',p:'2,412',c:'+0.55%',up:true},
+  {s:'QQQ',p:'478.21',c:'+0.61%',up:true},
+];
+function renderTicker(){
+  const track = document.getElementById('tickerTrack');
+  const build = () => symbols.map(t=>
+    `<span class="tick"><span class="sym">${t.s}</span><span>${t.p}</span><span class="${t.up?'up':'down'}">${t.c}</span></span>`
+  ).join('');
+  track.innerHTML = build() + build();
+}
+renderTicker();
+
+// Fallback content — shown instantly on load, and used if the live
+// pipeline endpoint isn't deployed yet or is temporarily down.
+const demoNews = [
+  {tkr:'NVDA', tag:'bullish', badge:'🔥', time:'7:12 AM', source:'Co. filing', title:'Nvidia supplier signals capacity expansion into Q1', body:'A key packaging partner flagged higher utilization guidance — often an early read on demand before official earnings.', locked:false},
+  {tkr:'FED', tag:'neutral', badge:'⚖️', time:'6:40 AM', source:'Fed release', title:'FOMC minutes show split on pace of future cuts', body:'Several members flagged sticky services inflation as the main holdout. Markets are pricing roughly even odds on the next move.', locked:false},
+  {tkr:'TSLA', tag:'bearish', badge:'📉', time:'6:05 AM', source:'Delivery data', title:'Regional delivery numbers came in below dealer estimates', body:'Third-party tracking suggests a soft quarter in one major market. Full breakdown on what it means for margins is in Pro.', locked:true},
+  {tkr:'AAPL', tag:'neutral', badge:'⚖️', time:'5:51 AM', source:'SEC 8-K', title:'Apple discloses new supply agreement in filing', body:'Terms weren\'t specified, but the timing lines up with next-gen device rumors circulating since spring.', locked:false},
+  {tkr:'OIL', tag:'bullish', badge:'🔥', time:'5:20 AM', source:'EIA report', title:'Crude inventories draw down more than forecast', body:'Refinery throughput ticked up ahead of seasonal demand. We break down the setup for energy names in Pro.', locked:true},
+  {tkr:'AMD', tag:'bullish', badge:'🔥', time:'4:58 AM', source:'Analyst note', title:'Sell-side desk lifts price target on AI accelerator ramp', body:'Note cites channel checks pointing to stronger-than-modeled unit volumes heading into the back half.', locked:false},
+];
+
+let newsData = demoNews;
+let activeFilter = 'all';
+
+function renderFeed(){
+  const list = document.getElementById('feedList');
+  const items = newsData.filter(n => activeFilter==='all' || n.tag===activeFilter);
+  list.innerHTML = items.map(n => `
+    <div class="card ${n.locked?'locked':''}">
+      <div class="hype-badge ${n.tag}">${n.badge}</div>
+      <div class="${n.locked?'lockblur':''}">
+        <div class="card-meta"><span class="tkr">${n.tkr}</span><span>·</span><span>${n.time}</span></div>
+        <h3>${n.title}</h3>
+        <p>${n.body}</p>
+      </div>
+      <div class="card-source ${n.locked?'lockblur':''}">${n.source}</div>
+      ${n.locked ? `<div class="lock-overlay" style="grid-column:1/-1;"><span class="tag">🔒 Pro members only</span></div>` : ''}
+    </div>
+  `).join('');
+}
+renderFeed(); // show demo content immediately, no blank/loading flash
+
+// Then try to swap in real data. If /api/fetch-news isn't deployed yet
+// (e.g. you're just opening this file locally), this fails silently and
+// the demo content above just stays put — nothing breaks.
+async function loadLiveNews(){
+  try{
+    const res = await fetch('/api/fetch-news');
+    if(!res.ok) throw new Error('Pipeline endpoint returned ' + res.status);
+    const data = await res.json();
+    if(data.news && data.news.length){
+      newsData = data.news;
+      renderFeed();
+    }
+  }catch(err){
+    console.log('Live feed not available yet — showing demo content.', err.message);
+  }
+}
+loadLiveNews();
+
+document.getElementById('filters').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.chip');
+  if(!btn) return;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter = btn.dataset.f;
+  renderFeed();
+});
+
+async function signup(){
+  const input = document.getElementById('signupEmail');
+  const status = document.getElementById('signupStatus');
+  const email = input.value.trim();
+  if(!email || !email.includes('@')){
+    status.textContent = 'Enter a valid email.';
+    status.className = 'status-msg';
+    return;
+  }
+  try{
+    const key = 'subscriber:' + email.toLowerCase();
+    await window.storage.set(key, JSON.stringify({email, joinedAt: new Date().toISOString()}), true);
+    status.textContent = "You're in. Check your inbox tomorrow at open.";
+    status.className = 'status-msg ok';
+    input.value = '';
+  }catch(err){
+    status.textContent = 'Something went wrong — try again.';
+    status.className = 'status-msg';
+  }
+}
+
+function unlockDemo(){
+  alert('This is a prototype — in production this button would start a Stripe checkout flow for the Pro trial.');
+}
+</script>
+
+</body>
+</html>
