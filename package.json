@@ -1,0 +1,16 @@
+{
+  "name": "finbro-news-pipeline",
+  "version": "1.0.0",
+  "description": "Pulls market news from a news API, tags it by ticker/sentiment, and writes AI-generated 'why it matters' blurbs in The Fin Bro's voice.",
+  "type": "module",
+  "main": "scripts/run-local.js",
+  "scripts": {
+    "fetch": "node scripts/run-local.js",
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0",
+    "dotenv": "^16.4.5",
+    "node-fetch": "^3.3.2"
+  }
+}
