@@ -318,10 +318,6 @@ document.getElementById('filters').addEventListener('click', (e)=>{
   renderFeed();
 });
 
-// Replace YOUR_FORM_ID below with the ID Formspree gives you after you
-// create a free account at formspree.io and set up a new form.
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
-
 async function signup(){
   const input = document.getElementById('signupEmail');
   const status = document.getElementById('signupStatus');
@@ -332,12 +328,12 @@ async function signup(){
     return;
   }
   try{
-    const res = await fetch(FORMSPREE_ENDPOINT, {
+    const res = await fetch('/api/subscribe', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),
     });
-    if(!res.ok) throw new Error('Formspree returned ' + res.status);
+    if(!res.ok) throw new Error('Subscribe returned ' + res.status);
     status.textContent = "You're in. Check your inbox tomorrow at open.";
     status.className = 'status-msg ok';
     input.value = '';
