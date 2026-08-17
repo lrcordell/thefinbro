@@ -254,6 +254,49 @@ function renderTicker(){
 }
 renderTicker();
 
+Paste this in its place:
+
+javascript
+const demoSymbols = [
+  {s:'SPY',p:'552.14',c:'+0.42%',up:true},
+  {s:'NVDA',p:'118.66',c:'+2.11%',up:true},
+  {s:'AAPL',p:'201.33',c:'-0.18%',up:false},
+  {s:'TSLA',p:'244.90',c:'-1.62%',up:false},
+  {s:'BTC',p:'71,240',c:'+3.04%',up:true},
+  {s:'DXY',p:'103.4',c:'+0.09%',up:true},
+  {s:'10Y',p:'4.28%',c:'-0.03',up:false},
+  {s:'AMD',p:'149.02',c:'+1.75%',up:true},
+  {s:'GOLD',p:'2,412',c:'+0.55%',up:true},
+  {s:'QQQ',p:'478.21',c:'+0.61%',up:true},
+];
+
+let tickerSymbols = demoSymbols;
+
+function renderTicker(){
+  const track = document.getElementById('tickerTrack');
+  const build = () => tickerSymbols.map(t=>
+    `<span class="tick"><span class="sym">${t.s}</span><span>${t.error ? '--' : t.p}</span><span class="${t.up?'up':'down'}">${t.error ? '' : t.c}</span></span>`
+  ).join('');
+  track.innerHTML = build() + build();
+}
+renderTicker();
+
+async function loadLivePrices(){
+  try{
+    const res = await fetch('/api/fetch-prices');
+    if(!res.ok) throw new Error('Price endpoint returned ' + res.status);
+    const data = await res.json();
+    if(data.prices && data.prices.length){
+      tickerSymbols = data.prices.map((p, i) => p.error ? tickerSymbols[i] : p);
+      renderTicker();
+    }
+  }catch(err){
+    console.log('Live prices not available yet — showing demo content.', err.message);
+  }
+}
+loadLivePrices();
+setInterval(loadLivePrices, 2 * 60 * 1000);
+
 // Fallback content — shown instantly on load, and used if the live
 // pipeline endpoint isn't deployed yet or is temporarily down.
 const demoNews = [
