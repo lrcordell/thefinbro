@@ -233,27 +233,6 @@
 </footer>
 
 <script>
-const symbols = [
-  {s:'SPY',p:'552.14',c:'+0.42%',up:true},
-  {s:'NVDA',p:'118.66',c:'+2.11%',up:true},
-  {s:'AAPL',p:'201.33',c:'-0.18%',up:false},
-  {s:'TSLA',p:'244.90',c:'-1.62%',up:false},
-  {s:'BTC',p:'71,240',c:'+3.04%',up:true},
-  {s:'DXY',p:'103.4',c:'+0.09%',up:true},
-  {s:'10Y',p:'4.28%',c:'-0.03',up:false},
-  {s:'AMD',p:'149.02',c:'+1.75%',up:true},
-  {s:'GOLD',p:'2,412',c:'+0.55%',up:true},
-  {s:'QQQ',p:'478.21',c:'+0.61%',up:true},
-];
-function renderTicker(){
-  const track = document.getElementById('tickerTrack');
-  const build = () => symbols.map(t=>
-    `<span class="tick"><span class="sym">${t.s}</span><span>${t.p}</span><span class="${t.up?'up':'down'}">${t.c}</span></span>`
-  ).join('');
-  track.innerHTML = build() + build();
-}
-renderTicker();
-
 const demoSymbols = [
   {s:'SPY',p:'552.14',c:'+0.42%',up:true},
   {s:'NVDA',p:'118.66',c:'+2.11%',up:true},
