@@ -245,7 +245,50 @@ const demoSymbols = [
   {s:'GOLD',p:'2,412',c:'+0.55%',up:true},
   {s:'QQQ',p:'478.21',c:'+0.61%',up:true},
 ];
+function computeSentimentScore(news){
+  if(!news || !news.length) return null;
+  const weights = { bullish: 1, bearish: -1, neutral: 0 };
+  const sum = news.reduce((acc,n)=> acc + (weights[n.tag] ?? 0), 0);
+  const avg = sum / news.length;
+  return (avg + 1) * 50;
+}
 
+function computePriceScore(prices){
+  if(!prices || !prices.length) return null;
+  const pctChanges = ['SPY','QQQ']
+    .map(sym => prices.find(p => p.s === sym))
+    .filter(p => p && !p.error && p.c)
+    .map(p => parseFloat(p.c));
+  if(!pctChanges.length) return null;
+  const avg = pctChanges.reduce((a,b)=>a+b,0) / pctChanges.length;
+  const clamped = Math.max(-2, Math.min(2, avg));
+  return ((clamped + 2) / 4) * 100;
+}
+
+function hypeLabel(score){
+  if(score >= 80) return 'EUPHORIC';
+  if(score >= 60) return 'RISK-ON';
+  if(score >= 40) return 'NEUTRAL';
+  if(score >= 20) return 'CAUTIOUS';
+  return 'RISK-OFF';
+}
+
+function updateHypeGauge(){
+  const sentimentScore = newsData !== demoNews ? computeSentimentScore(newsData) : null;
+  const priceScore = tickerSymbols !== demoSymbols ? computePriceScore(tickerSymbols) : null;
+  if(sentimentScore === null && priceScore === null) return;
+
+  const score = Math.round(Math.max(0, Math.min(100,
+    sentimentScore !== null && priceScore !== null
+      ? (0.5 * sentimentScore + 0.5 * priceScore)
+      : (sentimentScore !== null ? sentimentScore : priceScore)
+  )));
+
+  const arcLength = 298;
+  document.getElementById('gaugeArc').setAttribute('stroke-dashoffset', Math.round(arcLength * (1 - score/100)));
+  document.querySelector('.gauge-label .num').textContent = score;
+  document.querySelector('.gauge-label .txt').textContent = hypeLabel(score);
+}
 let tickerSymbols = demoSymbols;
 
 function renderTicker(){
@@ -265,6 +308,7 @@ async function loadLivePrices(){
     if(data.prices && data.prices.length){
       tickerSymbols = data.prices.map((p, i) => p.error ? tickerSymbols[i] : p);
       renderTicker();
+      updateHypeGauge();
     }
   }catch(err){
     console.log('Live prices not available yet — showing demo content.', err.message);
@@ -325,6 +369,7 @@ async function loadLiveNews(){
     if(data.news && data.news.length){
       newsData = data.news;
       renderFeed();
+      updateHypeGauge();
     }
   }catch(err){
     console.log('Live feed not available yet — showing demo content.', err.message);
