@@ -331,6 +331,7 @@ async function loadLiveNews(){
   }
 }
 loadLiveNews();
+  setInterval(loadLiveNews, 15 * 60 * 1000)
 
 document.getElementById('filters').addEventListener('click', (e)=>{
   const btn = e.target.closest('.chip');
