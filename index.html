@@ -181,8 +181,8 @@
       </div>
     </div>
     <div class="hype-foot">
-      <span>Yesterday: <b>68</b></span>
-      <span>7-day avg: <b>64</b></span>
+      <span>Yesterday: <b id="hypeYesterday">68</b></span>
+      <span>7-day avg: <b id="hypeSevenDay">64</b></span>
     </div>
   </div>
 </section>
@@ -288,7 +288,31 @@ function updateHypeGauge(){
   document.getElementById('gaugeArc').setAttribute('stroke-dashoffset', Math.round(arcLength * (1 - score/100)));
   document.querySelector('.gauge-label .num').textContent = score;
   document.querySelector('.gauge-label .txt').textContent = hypeLabel(score);
+
+  fetch('/api/hype-history', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ score }),
+  }).catch(()=>{});
 }
+
+async function loadHypeHistory(){
+  try{
+    const res = await fetch('/api/hype-history');
+    if(!res.ok) return;
+    const data = await res.json();
+    if(!data.configured) return;
+    if(data.yesterday !== null && data.yesterday !== undefined){
+      document.getElementById('hypeYesterday').textContent = data.yesterday;
+    }
+    if(data.sevenDayAvg !== null && data.sevenDayAvg !== undefined){
+      document.getElementById('hypeSevenDay').textContent = data.sevenDayAvg;
+    }
+  }catch(err){
+    console.log('Hype history not available yet.', err.message);
+  }
+}
+loadHypeHistory();
 let tickerSymbols = demoSymbols;
 
 function renderTicker(){
