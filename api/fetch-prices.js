@@ -13,7 +13,7 @@ function getRedisClient() {
 }
 
 const CACHE_KEY = 'live-prices-cache';
-const CACHE_TTL_SECONDS = 120;
+const CACHE_TTL_SECONDS = 600;
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
