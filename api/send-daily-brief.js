@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const siteUrl = `https://${process.env.VERCEL_URL}`;
+    const siteUrl = 'https://thefinbro.com';
     const newsRes = await fetch(`${siteUrl}/api/fetch-news`);
     if (!newsRes.ok) throw new Error(`fetch-news returned ${newsRes.status}`);
     const { news } = await newsRes.json();
