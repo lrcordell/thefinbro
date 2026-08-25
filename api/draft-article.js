@@ -49,8 +49,7 @@ export default async function handler(req, res) {
       messages: [{ role: 'user', content: `Today's headlines:\n${headlinesText}` }],
     });
 
-    const raw = message.content[0].text.trim();
-    const draft = JSON.parse(raw);
+  const raw = message.content[0].text.trim(); const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim(); const draft = JSON.parse(cleaned);
 
     return res.status(200).json({ ok: true, draft });
   } catch (err) {
