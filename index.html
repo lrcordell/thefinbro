@@ -224,7 +224,12 @@
         </ul>
         <button class="btn-block" onclick="unlockDemo()">Start Free Trial</button>
       </div>
-    </div>
+       </div>
+  </div>
+
+  <div class="analysis-section" id="analysisSection" style="display:none;">
+    <h2 class="display" style="margin-top:40px;">Analysis</h2>
+    <div id="articlesList"></div>
   </div>
 </section>
 
@@ -320,6 +325,27 @@ async function loadHypeHistory(){
   }
 }
 loadHypeHistory();
+
+async function loadArticles(){
+  try{
+    const res = await fetch('/api/articles');
+    if(!res.ok) return;
+    const data = await res.json();
+    if(!data.articles || !data.articles.length) return;
+
+    document.getElementById('analysisSection').style.display = 'block';
+    document.getElementById('articlesList').innerHTML = data.articles.map(a => {
+      const date = new Date(a.publishedAt).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+      return `<div style="padding:14px 0;border-bottom:1px solid var(--line);">
+        <a href="/article.html?slug=${encodeURIComponent(a.slug)}" style="color:var(--text);text-decoration:none;font-weight:600;">${a.title}</a>
+        <div style="color:var(--text-dim);font-size:12px;margin-top:4px;">${date}</div>
+      </div>`;
+    }).join('');
+  }catch(err){
+    console.log('Articles not available yet.', err.message);
+  }
+}
+loadArticles();
 let tickerSymbols = demoSymbols;
 
 function renderTicker(){
