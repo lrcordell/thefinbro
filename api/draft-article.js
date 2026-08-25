@@ -7,13 +7,40 @@ important 2-4 stories into one cohesive "here's what actually matters today and 
 
 Confident, casual, no-BS tone — like a smart friend explaining the day over coffee, not a
 press release. Never give trading advice (no "buy", "sell", "you should"). Use short
-paragraphs, no markdown headers, no markdown formatting of any kind.
+paragraphs, no markdown formatting of any kind — no headers, no bold, no asterisks.
 
-Respond in EXACTLY this format, nothing before or after it:
+Respond in EXACTLY this format, nothing before or after it, no preamble like "Here's the article":
 
 TITLE: <a punchy headline, 8-14 words>
 ===BODY===
 <the full article text, 400-600 words, with a blank line between paragraphs>`;
+
+function parseDraft(raw) {
+  let titleMatch = raw.match(/^TITLE:\s*(.+?)\s*(?:\r?\n)/);
+  let bodySplit = raw.split('===BODY===');
+  if (titleMatch && bodySplit.length >= 2 && bodySplit[1].trim()) {
+    return { title: titleMatch[1].trim(), body: bodySplit[1].trim() };
+  }
+
+  const looseTitleMatch = raw.match(/\**\s*TITLE:\s*\**\s*(.+?)\s*(?:\r?\n)/i);
+  const looseBodySplit = raw.split(/\**\s*===\s*BODY\s*===\s*\**/i);
+  if (looseTitleMatch && looseBodySplit.length >= 2 && looseBodySplit[1].trim()) {
+    return { title: looseTitleMatch[1].trim(), body: looseBodySplit[1].trim() };
+  }
+
+  const lines = raw.split('\n').map(l => l.trim());
+  const firstContentLine = lines.find(l => l.length > 0);
+  if (firstContentLine) {
+    const title = firstContentLine.replace(/^\**\s*TITLE:\s*\**\s*/i, '').trim();
+    const bodyStartIndex = raw.indexOf(firstContentLine) + firstContentLine.length;
+    const body = raw.slice(bodyStartIndex).trim();
+    if (title && body) {
+      return { title, body };
+    }
+  }
+
+  return null;
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -50,21 +77,11 @@ export default async function handler(req, res) {
     });
 
     const raw = message.content[0].text.trim();
+    const draft = parseDraft(raw);
 
-    const titleMatch = raw.match(/^TITLE:\s*(.+?)\s*(?:\r?\n)/);
-    const bodySplit = raw.split('===BODY===');
-
-    if (!titleMatch || bodySplit.length < 2) {
-      throw new Error('Draft response was not in the expected format');
-    }
-
-    const draft = {
-      title: titleMatch[1].trim(),
-      body: bodySplit[1].trim(),
-    };
-
-    if (!draft.title || !draft.body) {
-      throw new Error('Draft came back empty');
+    if (!draft) {
+      console.error('Article draft parse failed. Raw response was:', raw);
+      throw new Error('Could not parse a title/body from the draft — check Vercel logs for the raw response');
     }
 
     return res.status(200).json({ ok: true, draft });
