@@ -1,1 +1,96 @@
- FILE 3 
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Write — The Fin Bro</title>
+<meta name="robots" content="noindex">
+<style>
+  body{font-family:sans-serif;max-width:700px;margin:40px auto;padding:0 20px;background:#0a0a0a;color:#eee;}
+  h1{font-size:22px;}
+  input, textarea{width:100%;background:#111;color:#eee;border:1px solid #333;border-radius:6px;padding:12px;font-size:15px;margin-bottom:14px;box-sizing:border-box;font-family:inherit;}
+  textarea{min-height:300px;resize:vertical;line-height:1.5;}
+  button{background:#ff5a1f;color:#000;border:none;padding:12px 22px;font-weight:700;border-radius:6px;cursor:pointer;font-size:15px;margin-right:10px;}
+  button:disabled{opacity:0.5;cursor:not-allowed;}
+  #status{margin-top:14px;font-size:14px;}
+  .ok{color:#4ade80;}
+  .err{color:#f87171;}
+  label{display:block;margin-bottom:6px;color:#999;font-size:13px;}
+</style>
+</head>
+<body>
+  <h1>Write a Post</h1>
+
+  <label for="password">Password</label>
+  <input type="password" id="password" placeholder="Admin password">
+
+  <button id="draftBtn">✨ Generate AI Draft</button>
+
+  <label for="title" style="margin-top:20px;">Title</label>
+  <input type="text" id="title" placeholder="Headline">
+
+  <label for="body">Body</label>
+  <textarea id="body" placeholder="Write your post, or click Generate AI Draft above to start from a draft of today's biggest stories..."></textarea>
+
+  <button id="publishBtn">Publish</button>
+  <span id="status"></span>
+
+  <script>
+    const passwordEl = document.getElementById('password');
+    const titleEl = document.getElementById('title');
+    const bodyEl = document.getElementById('body');
+    const statusEl = document.getElementById('status');
+    let wasAiDrafted = false;
+
+    document.getElementById('draftBtn').addEventListener('click', async () => {
+      const password = passwordEl.value;
+      if (!password) { setStatus('Enter the password first.', true); return; }
+      setStatus('Drafting from today\'s headlines...', false);
+      try {
+        const res = await fetch('/api/draft-article', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Draft failed');
+        titleEl.value = data.draft.title;
+        bodyEl.value = data.draft.body;
+        wasAiDrafted = true;
+        setStatus('✓ Draft ready — review and edit before publishing.', false);
+      } catch (err) {
+        setStatus('Draft failed: ' + err.message, true);
+      }
+    });
+
+    document.getElementById('publishBtn').addEventListener('click', async () => {
+      const password = passwordEl.value;
+      const title = titleEl.value.trim();
+      const body = bodyEl.value.trim();
+      if (!password) { setStatus('Enter the password first.', true); return; }
+      if (!title || !body) { setStatus('Title and body are both required.', true); return; }
+
+      setStatus('Publishing...', false);
+      try {
+        const res = await fetch('/api/articles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password, title, body, aiDrafted: wasAiDrafted }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Publish failed');
+        setStatus('✓ Published! Live at thefinbro.com/article.html?slug=' + data.slug, false);
+        titleEl.value = '';
+        bodyEl.value = '';
+        wasAiDrafted = false;
+      } catch (err) {
+        setStatus('Publish failed: ' + err.message, true);
+      }
+    });
+
+    function setStatus(msg, isError){
+      statusEl.textContent = msg;
+      statusEl.className = isError ? 'err' : 'ok';
+    }
+  </script>
+</body>
+</html>
