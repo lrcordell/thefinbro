@@ -1,6 +1,8 @@
 {
   "crons": [
-    { "path": "/api/fetch-news", "schedule": "0 10 * * *" },
-    { "path": "/api/send-daily-brief", "schedule": "15 10 * * *" }
+    { "path": "/api/fetch-news", "schedule": "0 10 * * *" }
+  ],
+  "rewrites": [
+    { "source": "/article.html", "destination": "/api/article-page" }
   ]
 }
