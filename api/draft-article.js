@@ -7,13 +7,13 @@ important 2-4 stories into one cohesive "here's what actually matters today and 
 
 Confident, casual, no-BS tone — like a smart friend explaining the day over coffee, not a
 press release. Never give trading advice (no "buy", "sell", "you should"). Use short
-paragraphs, no markdown headers.
+paragraphs, no markdown headers, no markdown formatting of any kind.
 
-Respond with ONLY a JSON object (no markdown, no prose) in this exact shape:
-{
-  "title": "a punchy headline, 8-14 words",
-  "body": "the full article text, 400-600 words, plain paragraphs separated by \\n\\n"
-}`;
+Respond in EXACTLY this format, nothing before or after it:
+
+TITLE: <a punchy headline, 8-14 words>
+===BODY===
+<the full article text, 400-600 words, with a blank line between paragraphs>`;
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -49,7 +49,23 @@ export default async function handler(req, res) {
       messages: [{ role: 'user', content: `Today's headlines:\n${headlinesText}` }],
     });
 
-  const raw = message.content[0].text.trim(); const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim(); const draft = JSON.parse(cleaned);
+    const raw = message.content[0].text.trim();
+
+    const titleMatch = raw.match(/^TITLE:\s*(.+?)\s*(?:\r?\n)/);
+    const bodySplit = raw.split('===BODY===');
+
+    if (!titleMatch || bodySplit.length < 2) {
+      throw new Error('Draft response was not in the expected format');
+    }
+
+    const draft = {
+      title: titleMatch[1].trim(),
+      body: bodySplit[1].trim(),
+    };
+
+    if (!draft.title || !draft.body) {
+      throw new Error('Draft came back empty');
+    }
 
     return res.status(200).json({ ok: true, draft });
   } catch (err) {
