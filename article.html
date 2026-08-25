@@ -1,1 +1,48 @@
-FILE 4
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>The Fin Bro</title>
+<style>
+  body{font-family:sans-serif;max-width:680px;margin:0 auto;padding:40px 20px;background:#0a0a0a;color:#eee;}
+  a{color:#ff5a1f;text-decoration:none;}
+  h1{font-size:28px;line-height:1.3;}
+  .meta{color:#999;font-size:13px;margin-bottom:28px;}
+  .content p{color:#ddd;line-height:1.7;font-size:16px;margin-bottom:18px;}
+  .back{display:inline-block;margin-bottom:24px;font-size:14px;}
+</style>
+</head>
+<body>
+  <a class="back" href="/">&larr; Back to thefinbro.com</a>
+  <div id="app">Loading...</div>
+
+  <script>
+    async function load(){
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get('slug');
+      const app = document.getElementById('app');
+      if(!slug){
+        app.textContent = 'No article specified.';
+        return;
+      }
+      try{
+        const res = await fetch('/api/articles?slug=' + encodeURIComponent(slug));
+        if(!res.ok) throw new Error('Not found');
+        const data = await res.json();
+        const a = data.article;
+        const date = new Date(a.publishedAt).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+        document.title = a.title + ' — The Fin Bro';
+        const paragraphs = a.body.split('\n\n').map(p => `<p>${p}</p>`).join('');
+        app.innerHTML = `
+          <h1>${a.title}</h1>
+          <div class="meta">${date}${a.aiDrafted ? ' · AI-assisted draft' : ''}</div>
+          <div class="content">${paragraphs}</div>
+        `;
+      }catch(err){
+        app.textContent = 'Article not found.';
+      }
+    }
+    load();
+  </script>
+</body>
+</html>
