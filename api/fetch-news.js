@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     const news = await runPipeline({
       marketauxKey: process.env.MARKETAUX_API_KEY,
       anthropicKey: process.env.ANTHROPIC_API_KEY,
-      limit: 10,
+      limit: 8,
     });
 
     cache = { data: news, fetchedAt: Date.now() };
